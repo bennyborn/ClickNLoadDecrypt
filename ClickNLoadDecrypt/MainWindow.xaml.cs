@@ -20,15 +20,37 @@ namespace ClickNLoadDecrypt
         public MainWindow()
         {
             InitializeComponent();
+            SetWindowPosition();
+        }
+
+        private void SetWindowPosition()
+        {
+            Left = SystemParameters.PrimaryScreenWidth - (double)GetValue(WidthProperty) - 30;
+            Top = SystemParameters.PrimaryScreenHeight - (double)GetValue(HeightProperty) - 50;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+
             this.Listener = new HttpListener();
             this.Listener.Prefixes.Add("http://*:9666/");
-            this.Listener.Start();
-            Debug.WriteLine("Server started...");
-            IAsyncResult result = this.Listener.BeginGetContext(new AsyncCallback(WebRequestCallback), this.Listener);
+
+            try
+            {
+                this.Listener.Start();
+                IAsyncResult result = this.Listener.BeginGetContext(new AsyncCallback(WebRequestCallback), this.Listener);
+            }
+            catch (Exception)
+            {
+                ShowJDRunningError();
+            }
+
+        }
+
+        private void ShowJDRunningError() {
+
+            MessageBox.Show("Seems like JDownloader is already running, please close JDownloader first", "JDownloader running");
+            Application.Current.Shutdown();
         }
 
         private void Window_Unloaded(object sender, RoutedEventArgs e)
